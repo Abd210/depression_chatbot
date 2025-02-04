@@ -40,7 +40,8 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(30.0),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
         ),
       ),
       home: HomeScreen(),
@@ -364,11 +365,16 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // For user messages, use a dark primary bubble with white text.
+    // For bot messages, use a light blue bubble with dark text.
     final Color userBubbleColor = MyApp.primaryColor;
     final Color botBubbleColor = MyApp.lightBlue;
     final bubbleColor = message.isUser ? userBubbleColor : botBubbleColor;
     final avatarIcon = message.isUser ? Icons.person : Icons.smart_toy;
-    final textStyle = const TextStyle(fontSize: 16.0, color: Colors.white);
+    // Adjust text style based on sender.
+    final textStyle = message.isUser
+        ? const TextStyle(fontSize: 16.0, color: Colors.white)
+        : const TextStyle(fontSize: 16.0, color: Colors.black87);
 
     // For bot messages (not the typing indicator), use a typewriter effect.
     Widget messageContent;
@@ -434,8 +440,9 @@ class ChatBubble extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4.0),
+            // Timestamp now uses a larger font and a dark, visible color.
             Text(_formatTimestamp(message.timestamp),
-                style: TextStyle(fontSize: 10.0, color: Colors.grey[300])),
+                style: const TextStyle(fontSize: 12.0, color: Colors.black54)),
           ],
         ),
       ),
@@ -671,8 +678,8 @@ class _JournalPageState extends State<JournalPage> {
                 itemBuilder: (context, index) {
                   final entry = _entries[index];
                   return ListTile(
-                    title: Text(entry.text),
-                    subtitle: Text(_formatTimestamp(entry.timestamp)),
+                    title: Text(entry.text, style: const TextStyle(fontSize: 16.0, color: Colors.black87)),
+                    subtitle: Text(_formatTimestamp(entry.timestamp), style: const TextStyle(fontSize: 12.0, color: Colors.black54)),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete),
                       onPressed: () {
@@ -779,8 +786,8 @@ class _MoodTrackerPageState extends State<MoodTrackerPage> {
                       backgroundColor: MyApp.accentColor,
                       child: Text(entry.mood, style: const TextStyle(fontSize: 24.0)),
                     ),
-                    title: Text("Mood: ${entry.mood}", style: const TextStyle(fontSize: 18.0)),
-                    subtitle: Text(_formatTimestamp(entry.timestamp)),
+                    title: Text("Mood: ${entry.mood}", style: const TextStyle(fontSize: 18.0, color: Colors.black87)),
+                    subtitle: Text(_formatTimestamp(entry.timestamp), style: const TextStyle(fontSize: 12.0, color: Colors.black54)),
                   );
                 },
               ),
@@ -819,13 +826,13 @@ class _AnalysisPageState extends State<AnalysisPage> {
     // Compile journal entries.
     String journalData = AppData.journalEntries.isNotEmpty
         ? AppData.journalEntries
-            .map((entry) => "- ${entry.text} (at ${entry.timestamp.month}/${entry.timestamp.day}/${entry.timestamp.year})")
+            .map((entry) => "- ${entry.text} (on ${entry.timestamp.month}/${entry.timestamp.day}/${entry.timestamp.year})")
             .join("\n")
         : "No journal entries provided.";
     // Compile mood entries.
     String moodData = AppData.moodEntries.isNotEmpty
         ? AppData.moodEntries
-            .map((entry) => "- ${entry.mood} (at ${entry.timestamp.month}/${entry.timestamp.day}/${entry.timestamp.year})")
+            .map((entry) => "- ${entry.mood} (on ${entry.timestamp.month}/${entry.timestamp.day}/${entry.timestamp.year})")
             .join("\n")
         : "No mood entries provided.";
     // Construct the prompt.
@@ -897,9 +904,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const Text("Analysis Result:", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+                        const Text("Analysis Result:", style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.black87)),
                         const SizedBox(height: 12.0),
-                        TypewriterText(text: _analysisResult, style: const TextStyle(fontSize: 16.0, color: Colors.white)),
+                        TypewriterText(text: _analysisResult, style: const TextStyle(fontSize: 16.0, color: Colors.black87)),
                         const SizedBox(height: 16.0),
                         ElevatedButton(
                           onPressed: _analyzeData,
@@ -920,7 +927,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
 
 /// ResourcesPage displays helpful depression-related resources and self-care tips.
 class ResourcesPage extends StatelessWidget {
-  // Make _tips a non-const list to allow shuffling.
+  // Make _tips a mutable list so we can shuffle it.
   final List<String> _tips = [
     "Take a short walk and get some fresh air.",
     "Practice deep breathing exercises for 5 minutes.",
@@ -954,6 +961,7 @@ class ResourcesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Create a mutable copy of _tips so that shuffle works without error.
     final List<String> tipsCopy = List.from(_tips);
     tipsCopy.shuffle();
     final String tip = tipsCopy.first;
@@ -978,7 +986,7 @@ class ResourcesPage extends StatelessWidget {
               elevation: 3,
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Text(tip, style: const TextStyle(fontSize: 16.0)),
+                child: Text(tip, style: const TextStyle(fontSize: 16.0, color: Colors.black87)),
               ),
             ),
             const SizedBox(height: 16.0),
@@ -1005,8 +1013,8 @@ class ResourcesPage extends StatelessWidget {
                 margin: const EdgeInsets.symmetric(vertical: 6.0),
                 child: ListTile(
                   leading: Icon(iconData, color: MyApp.primaryColor),
-                  title: Text(resource["title"]!, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text(resource["subtitle"]!),
+                  title: Text(resource["title"]!, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87)),
+                  subtitle: Text(resource["subtitle"]!, style: const TextStyle(color: Colors.black87)),
                 ),
               );
             }).toList(),
@@ -1014,7 +1022,7 @@ class ResourcesPage extends StatelessWidget {
             const Center(
               child: Text(
                 "Remember: You are not alone. If you feel unsafe, please call emergency services immediately.",
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Colors.red, fontSize: 14.0),
                 textAlign: TextAlign.center,
               ),
             ),
